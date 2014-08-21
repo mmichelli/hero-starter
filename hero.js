@@ -44,15 +44,15 @@
 //   return choices[Math.floor(Math.random()*4)];
 // };
 
-// // The "Unwise Assassin"
-// var move = function(gameData, helpers) {
-//   var myHero = gameData.activeHero;
-//   if (myHero.health < 30) {
-//     return helpers.findNearestHealthWell(gameData);
-//   } else {
-//     return helpers.findNearestEnemy(gameData);
-//   }
-// };
+ // The "Unwise Assassin"
+ var move = function(gameData, helpers) {
+   var myHero = gameData.activeHero;
+   if (myHero.health < 30) {
+     return helpers.findNearestHealthWell(gameData);
+   } else {
+     return helpers.findNearestEnemy(gameData);
+   }
+};
 
 // // The "Careful Assassin"
 // var move = function(gameData, helpers) {
@@ -64,7 +64,7 @@
 //   }
 // };
 
-// // The "Safe Diamond Miner"
+/* // The "Safe Diamond Miner"
 var move = function(gameData, helpers) {
   var myHero = gameData.activeHero;
 
@@ -89,6 +89,7 @@ var move = function(gameData, helpers) {
     return helpers.findNearestNonTeamDiamondMine(gameData);
   }
 };
+*/
 
 // // The "Selfish Diamond Miner" (captures teammates' diamond mines)
 // var move = function(gameData, helpers) {

@@ -59,8 +59,20 @@ var move = function(gameData, helpers) {
     else if (myHero.health < 40) {
         return healthWellStats.direction;
     }
-    else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2) {
+    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health < 50) {
         return healthWellStats.direction;
+    }
+    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health > 50) {
+        return weakEnemyTileStats.direction;
+    }
+    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health > myHero.weakEnemyTileStats) {
+        return weakEnemyTileStats.direction;
+    }
+    else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2 && myHero.health < 60) {
+        return healthWellStats.direction;
+    }
+    else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2 && myHero.health > 60) {
+        return strongEnemyTileStats.direction;
     }
     else if (diamondMineStats && diamondMineStats.distance  === 1) {
         return diamondMineStats.direction;

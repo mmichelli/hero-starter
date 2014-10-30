@@ -21,18 +21,29 @@ var move = function(gameData, helpers) {
                                }
                            });
 
+    var anyDiamondMineStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(mineTile) {
+                               return mineTile.type === 'DiamondMine' && mineTile.owner !== myHero;
+                           });
+
     var enemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
                             return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team ;
                         });
 
 
     var weakEnemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
-                            return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team && enemyTile.health < myHero.health;
+                            return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team && enemyTile.health < 40;
                         });
 
     var strongEnemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
-                                  return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team && enemyTile.health > myHero.health;
+                                  return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team && enemyTile.health > 60;
                               });
+    var grave = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(tile) {
+                                  return tile.type === 'Unoccupied' && tile.subType === 'Bones';
+                              });
+
+    var mate = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(tile) {
+                   return tile.type === 'Hero' && tile.team === myHero.team && tile.health < 50;
+               });
 
 
 
@@ -51,13 +62,29 @@ var move = function(gameData, helpers) {
     else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2) {
         return healthWellStats.direction;
     }
-    else if (weakEnemyTileStats && weakEnemyTileStats.distance  === 1) {
-        return weakEnemyTileStats.direction;;
-    } else if (diamondMineStats.distance  === 1) {
+    else if (diamondMineStats && diamondMineStats.distance  === 1) {
         return diamondMineStats.direction;
-    }  else if(myHero.health > 91 ){
+    }
+    else if (myHero.health > 60 && mate && mate.distance  < 2) {
+        return mate.direction;
+    }
+    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 3) {
+        return weakEnemyTileStats.direction;
+    }
+    else if (grave && grave.distance  === 1) {
+        return grave.direction;
+    }
+    else if (grave && grave.distance  < 3) {
+        return grave.direction;
+    }
+    else if(diamondMineStats && myHero.health > 81 ){
         return  diamondMineStats.direction;
-    }else{
+    }
+
+    else if (anyDiamondMineStats && myHero.health > 81) {
+        return anyDiamondMineStats.direction;
+    }
+    else{
         return healthWellStats.direction;
     }
 };

@@ -11,6 +11,16 @@ var move = function(gameData, helpers) {
 
 
 
+    var teamMate = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+                              if (boardTile.type === 'TeamMember') {
+                                  return true;
+                              }
+                          });
+
+
+
+
+
     var diamondMineStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(mineTile) {
                                if (mineTile.type === 'DiamondMine') {
                                    if (mineTile.owner) {
@@ -21,13 +31,10 @@ var move = function(gameData, helpers) {
                                }
                            });
 
-    var anyDiamondMineStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(mineTile) {
+
+     var anyDiamondMineStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(mineTile) {
                                return mineTile.type === 'DiamondMine' && mineTile.owner !== myHero;
                            });
-
-    var enemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
-                            return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team ;
-                        });
 
 
     var weakEnemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
@@ -37,68 +44,39 @@ var move = function(gameData, helpers) {
     var strongEnemyTileStats= helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(enemyTile) {
                                   return enemyTile.type === 'Hero' && enemyTile.team !== myHero.team && enemyTile.health > 60;
                               });
+
     var grave = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(tile) {
                                   return tile.type === 'Unoccupied' && tile.subType === 'Bones';
                               });
 
-    var mate = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(tile) {
-                   return tile.type === 'Hero' && tile.team === myHero.team && tile.health < 50;
+    var friendInNeed = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(tile) {
+                   return tile.type === 'Hero' && tile.team === myHero.team && tile.health < 30;
                });
 
+    var needHealth =  (strongEnemyTileStats.distance < 3 && myHero.health < 100) || myHero.health < 60 ;
 
 
-    if (myHero.health < 50 && healthWellStats.distance === 1 ) {
-        return healthWellStats.direction;
-    }
-    if (myHero.health >60  && healthWellStats.distance === 1 && enemyTileStats.distance === 1) {
-        return enemyTileStats.direction;
-    }
-    else if (myHero.health/healthWellStats.distance < 10 ) {
-        return healthWellStats.direction;
-    }
-    else if (myHero.health < 40) {
-        return healthWellStats.direction;
-    }
-    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health < 50) {
-        return healthWellStats.direction;
-    }
-    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health > 50) {
-        return weakEnemyTileStats.direction;
-    }
-    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 2 && myHero.health > myHero.weakEnemyTileStats) {
-        return weakEnemyTileStats.direction;
-    }
-    else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2 && myHero.health < 60) {
-        return healthWellStats.direction;
-    }
-    else if (strongEnemyTileStats && strongEnemyTileStats.distance  < 2 && myHero.health > 60) {
-        return strongEnemyTileStats.direction;
-    }
-    else if (diamondMineStats && diamondMineStats.distance  === 1) {
-        return diamondMineStats.direction;
-    }
-    else if (myHero.health > 60 && mate && mate.distance  < 2) {
-        return mate.direction;
-    }
-    else if (weakEnemyTileStats && weakEnemyTileStats.distance  < 3) {
-        return weakEnemyTileStats.direction;
-    }
-    else if (grave && grave.distance  === 1) {
-        return grave.direction;
-    }
-    else if (grave && grave.distance  < 3) {
-        return grave.direction;
-    }
-    else if(diamondMineStats && myHero.health > 81 ){
-        return  diamondMineStats.direction;
+    var priorities = [weakEnemyTileStats,diamondMineStats,grave,friendInNeed ];
+
+
+
+    if (needHealth ) {
+
+        return (teamMate && ( healthWellStats.distance > teamMate.distance)  )?teamMate.direction:healthWellStats.direction ;
     }
 
-    else if (anyDiamondMineStats && myHero.health > 81) {
-        return anyDiamondMineStats.direction;
-    }
-    else{
-        return healthWellStats.direction;
-    }
+
+
+    var next = priorities.slice(0).sort(function(a,b) {
+                   return (a)?a.distance - b.distance: Infinity;
+                })
+
+
+    return ( next[0])?next[0].direction: anyDiamondMineStats.direction;
+
+
+
+
 };
 
 module.exports = move;
